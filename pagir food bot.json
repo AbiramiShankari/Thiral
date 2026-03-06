@@ -1,0 +1,190 @@
+{
+  "name": "pagir food bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "f24b75f2-c592-420a-9b4e-5019b7720878",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        256,
+        976
+      ],
+      "webhookId": "d86b62d3-489e-4422-a381-98fae5566fb1",
+      "credentials": {
+        "telegramApi": {
+          "id": "yRAz9IqogVyi6Kih",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer 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"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.1-8b-instant\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are an AI assistant for a food waste redistribution platform called PAGIR.\\n\\nYour task is to read a Telegram message about leftover food and extract structured information.\\n\\nFrom the message identify:\\n\\nquantity = number of meals\\nfood_type = type of food\\nsafety = food safety status\\nroute = redistribution destination\\nrule = routing rule used\\nreason = short explanation\\n\\nRouting rules:\\n\\n1. If quantity ≤ 10\\nroute: Share with neighbours\\nrule: Small quantity → local sharing\\nreason: Food amount is small\\n\\n2. If quantity is between 11 and 50\\nroute: NGO pickup\\nrule: Medium quantity → NGO collection\\nreason: Enough meals for NGO distribution\\n\\n3. If quantity > 50\\nroute: Food bank distribution\\nrule: Large quantity → food bank logistics\\nreason: Large quantity suitable for food banks\\n\\nFood Safety Rule:\\nIf the message mentions food cooked within the last 4 hours → \\\"Safe for redistribution\\\"\\nOtherwise → \\\"Check freshness before distribution\\\"\\n\\nIMPORTANT:\\nReturn ONLY JSON.\\n\\nOutput format:\\n\\n{\\n  \\\"quantity\\\": number,\\n  \\\"food_type\\\": \\\"string\\\",\\n  \\\"safety\\\": \\\"string\\\",\\n  \\\"route\\\": \\\"string\\\",\\n  \\\"rule\\\": \\\"string\\\",\\n  \\\"reason\\\": \\\"string\\\"\\n}\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Telegram message:\\n{{ $json.message.text }}\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "bffe7591-3c6c-4481-947a-d184f6c5218a",
+      "name": "Call Groq AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        256,
+        304
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "jYlhuIBBTSydkB1e",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "chatId",
+              "value": "={{ $json.chatId }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "response",
+              "value": "=🍽️ PAGIR Food Redistribution Analysis\n\n📊 Quantity: {{ $json.quantity || 'Not specified' }} meals\n🍴 Food Type: {{ $json.food_type || 'Not specified' }}\n✅ Safety: {{ $json.safety || 'Not specified' }}\n\n📍 Redistribution Route: {{ $json.route || 'Not specified' }}\n📋 Rule Applied: {{ $json.rule || 'Not specified' }}\n💡 Reason: {{ $json.reason || 'Not specified' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "44c23de0-7ee6-4f1e-9263-97c3c30adfa1",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        320,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.response }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": ""
+        }
+      },
+      "id": "a1ce09aa-4baf-4b16-bbc5-e2559f97d0cd",
+      "name": "Send Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        304,
+        752
+      ],
+      "webhookId": "8e57f668-64ec-45ef-be23-4e0bb0c83b80",
+      "credentials": {
+        "telegramApi": {
+          "id": "yRAz9IqogVyi6Kih",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const aiResponse = $json.choices[0].message.content;\nconst data = JSON.parse(aiResponse);\n\nreturn [{\n  json: {\n    chatId: $('Telegram Trigger').item.json.message.chat.id,\n    quantity: data.quantity,\n    food_type: data.food_type,\n    safety: data.safety,\n    route: data.route,\n    rule: data.rule,\n    reason: data.reason\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        464,
+        304
+      ],
+      "id": "60f6d607-c606-4b8b-8a7e-bcd828da9a8a",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Call Groq AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Groq AI": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "72239517-d0ea-41a7-b381-9f95eb0c19e1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "40ef82664f74920f2f1f3c8b1b01f58d2ae6556f4996629ab4e43da090583302"
+  },
+  "id": "uF3T0UWY3Mi4SIdR",
+  "tags": []
+}
