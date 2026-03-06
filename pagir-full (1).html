@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#042D1E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>PAGIR — Rescue Food. Save the Planet.</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --p: #0A3B2E; --pl: #1A6B4A; --pm: #0F5239;
+  --a: #4CAF7C; --ab: #72E29A;
+  --ngo: #1A73E8; --bio: #FF7043; --kit: #26A69A;
+  --w: #fff; --ow: #F4F7F2; --sur: #E8EDE5; --bor: #D0D9CC;
+  --tp: #1A2E1E; --ts: #3D5A42; --tm: #6B8F71;
+  --ok: #27AE60; --warn: #F39C12; --err: #E74C3C;
+  --dark: #042D1E;
+  --r8: 8px; --r12: 12px; --r16: 16px; --r20: 20px; --r24: 24px; --rfull: 999px;
+  --s1: 0 1px 4px rgba(0,0,0,.06); --s2: 0 4px 16px rgba(0,0,0,.1); --s3: 0 8px 32px rgba(0,0,0,.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'DM Sans',sans-serif;background:#111;display:flex;justify-content:center;align-items:center;}
+h1,h2,h3,h4,.syne{font-family:'Syne',sans-serif;}
+
+/* ── Shell ── */
+#shell{
+  width:100%; max-width:430px; height:100vh; max-height:900px;
+  position:relative; overflow:hidden; background:var(--ow);
+  box-shadow:0 0 80px rgba(0,0,0,.5); border-radius:0;
+  display:flex; flex-direction:column;
+}
+@media(min-width:500px){
+  #shell{border-radius:32px; max-height:860px; height:90vh;}
+  body{background:linear-gradient(135deg,#042D1E 0%,#0A3B2E 50%,#1a4a3a 100%);}
+}
+
+/* ── Screens ── */
+.scr{position:absolute;inset:0;display:flex;flex-direction:column;background:var(--ow);transform:translateX(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;overflow:hidden;}
+.scr.active{transform:translateX(0);}
+.scr.prev{transform:translateX(-30%);}
+.scroll-body{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;}
+.scroll-body::-webkit-scrollbar{width:3px;}
+.scroll-body::-webkit-scrollbar-thumb{background:var(--bor);border-radius:4px;}
+
+/* ── Animations ── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-10px) rotate(4deg)}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(1.15)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+@keyframes countUp{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-400px 0}100%{background-position:400px 0}}
+@keyframes ripple{0%{transform:scale(0);opacity:.4}100%{transform:scale(4);opacity:0}}
+@keyframes checkDraw{from{stroke-dashoffset:100}to{stroke-dashoffset:0}}
+
+.fade-up{animation:fadeUp .45s ease both;}
+.scale-in{animation:scaleIn .4s cubic-bezier(.34,1.56,.64,1) both;}
+.slide-up{animation:slideUp .5s cubic-bezier(.34,1.56,.64,1) both;}
+
+/* ── Buttons ── */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;border:none;border-radius:var(--r16);font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.btn:active{transform:scale(.97);}
+.btn::after{content:'';position:absolute;inset:0;border-radius:inherit;background:rgba(255,255,255,.15);opacity:0;transition:opacity .2s;}
+.btn:active::after{opacity:1;}
+.btn-green{background:linear-gradient(135deg,var(--pm),var(--pl));color:#fff;box-shadow:0 4px 20px rgba(26,107,74,.35);}
+.btn-green:hover{box-shadow:0 6px 24px rgba(26,107,74,.45);transform:translateY(-1px);}
+.btn-outline{background:none;border:2px solid var(--pl);color:var(--pl);}
+.btn-outline:hover{background:rgba(26,107,74,.06);}
+.btn-ghost{background:none;border:2px solid var(--bor);color:var(--ts);}
+.btn-ghost:hover{border-color:var(--a);background:rgba(76,175,124,.05);}
+.btn-danger{background:linear-gradient(135deg,#c0392b,var(--err));color:#fff;}
+.btn-full{width:100%;padding:15px 20px;font-size:15px;}
+.btn-sm{padding:9px 16px;font-size:13px;}
+
+/* ── Inputs ── */
+.inp-wrap{display:flex;align-items:center;gap:10px;background:var(--ow);border:1.5px solid var(--bor);border-radius:var(--r12);padding:0 14px;transition:border-color .2s,box-shadow .2s;}
+.inp-wrap:focus-within{border-color:var(--a);box-shadow:0 0 0 3px rgba(76,175,124,.12);}
+.inp-wrap input,.inp-wrap textarea,.inp-wrap select{flex:1;padding:13px 0;background:none;border:none;outline:none;font-size:14px;color:var(--tp);font-family:'DM Sans',sans-serif;}
+.inp-wrap input::placeholder,.inp-wrap textarea::placeholder{color:var(--tm);}
+.inp-wrap .ico{font-size:18px;flex-shrink:0;}
+.field{margin-bottom:16px;}
+.label{display:block;font-size:11px;font-weight:700;color:var(--ts);text-transform:uppercase;letter-spacing:.8px;margin-bottom:7px;}
+.field-err{font-size:11px;color:var(--err);margin-top:5px;}
+
+/* ── Cards ── */
+.card{background:var(--w);border-radius:var(--r20);padding:18px;box-shadow:var(--s1);}
+.card-dark{background:linear-gradient(135deg,#122018,#0F3826);border-radius:var(--r20);padding:18px;}
+
+/* ── Header ── */
+.hdr{padding:52px 22px 24px;position:relative;overflow:hidden;flex-shrink:0;}
+.hdr-grad{background:linear-gradient(160deg,var(--dark) 0%,var(--p) 55%,var(--pm) 100%);}
+.hdr-purple{background:linear-gradient(160deg,#2D1B69 0%,#4527A0 55%,#673AB7 100%);}
+.hdr-blue{background:linear-gradient(160deg,#0D2F6E 0%,#1565C0 55%,#1A73E8 100%);}
+.orb{position:absolute;border-radius:50%;pointer-events:none;}
+.o1{width:280px;height:280px;background:rgba(76,175,124,.07);top:-80px;right:-70px;}
+.o2{width:160px;height:160px;background:rgba(114,226,154,.05);bottom:-20px;left:-30px;}
+.o3{width:120px;height:120px;background:rgba(255,255,255,.04);top:40%;right:10%;}
+.back-btn{display:flex;align-items:center;gap:6px;background:none;border:none;color:rgba(255,255,255,.65);font-size:14px;font-weight:600;cursor:pointer;padding:0;margin-bottom:16px;font-family:'DM Sans',sans-serif;transition:color .2s;}
+.back-btn:hover{color:rgba(255,255,255,.9);}
+.hdr-emoji{font-size:38px;display:block;margin-bottom:10px;}
+.hdr-title{font-size:26px;font-weight:900;color:#fff;letter-spacing:-.3px;}
+.hdr-sub{font-size:13px;color:rgba(255,255,255,.55);margin-top:8px;line-height:1.55;}
+
+/* ── Chips ── */
+.chips{display:flex;gap:7px;flex-wrap:wrap;}
+.chip{padding:7px 14px;border-radius:var(--rfull);border:1.5px solid var(--bor);background:var(--w);font-size:12px;font-weight:600;color:var(--ts);cursor:pointer;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap;}
+.chip.on{background:var(--pl);border-color:var(--pl);color:#fff;}
+.chip.on-purple{background:#673AB7;border-color:#673AB7;color:#fff;}
+
+/* ── Toast ── */
+#toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:#1A2E1E;color:#fff;padding:12px 20px;border-radius:var(--rfull);font-size:13px;font-weight:600;opacity:0;transition:all .3s;z-index:9999;white-space:nowrap;box-shadow:var(--s3);max-width:320px;text-align:center;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── Loading overlay ── */
+#loader{position:fixed;inset:0;background:rgba(4,45,30,.85);display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9998;backdrop-filter:blur(4px);}
+#loader.show{display:flex;}
+.loader-ring{width:48px;height:48px;border:4px solid rgba(76,175,124,.3);border-top-color:var(--a);border-radius:50%;animation:spin .8s linear infinite;}
+.loader-txt{color:rgba(255,255,255,.8);font-size:14px;font-weight:600;}
+
+/* ══════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════ */
+#s-login{background:linear-gradient(160deg,#042D1E 0%,#0A3B2E 50%,#1A6B4A 100%);}
+.login-wrap{flex:1;display:flex;flex-direction:column;padding:0 24px 32px;overflow-y:auto;}
+.login-logo{text-align:center;padding:48px 0 28px;}
+.leaf-anim{font-size:54px;display:block;margin-bottom:8px;animation:float 4s ease-in-out infinite;}
+.brand-name{font-size:54px;font-weight:900;color:#fff;letter-spacing:10px;text-shadow:0 4px 32px rgba(76,175,124,.4);line-height:1;}
+.brand-tag{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:2.5px;text-transform:uppercase;margin-top:8px;display:block;}
+.stats-strip{display:flex;gap:6px;background:rgba(255,255,255,.08);border-radius:var(--r16);padding:14px;margin-bottom:24px;}
+.ss-item{flex:1;text-align:center;}
+.ss-val{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--ab);display:block;}
+.ss-lbl{font-size:9px;color:rgba(255,255,255,.45);letter-spacing:.5px;margin-top:2px;display:block;}
+.login-card{background:#fff;border-radius:var(--r24);padding:26px;box-shadow:0 20px 60px rgba(0,0,0,.3);animation:slideUp .6s cubic-bezier(.34,1.56,.64,1) .25s both;}
+.lc-title{font-size:22px;font-weight:800;color:var(--tp);margin-bottom:3px;}
+.lc-sub{font-size:13px;color:var(--tm);margin-bottom:22px;}
+.divider{display:flex;align-items:center;gap:10px;margin:14px 0;}
+.div-line{flex:1;height:1px;background:var(--bor);}
+.div-txt{font-size:12px;color:var(--tm);}
+.foot-note{text-align:center;color:var(--tm);font-size:11px;margin-top:14px;line-height:1.55;}
+
+/* ══════════════════════════════════════════
+   HOME
+══════════════════════════════════════════ */
+.home-hdr{background:linear-gradient(160deg,var(--dark),var(--p),var(--pm));padding:52px 22px 22px;position:relative;overflow:hidden;flex-shrink:0;}
+.hdr-top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;position:relative;z-index:1;}
+.greet{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.5px;}
+.hdr-main-title{font-size:21px;font-weight:800;color:#fff;}
+.pagir-accent{color:var(--ab);}
+.live-badge{display:flex;align-items:center;gap:5px;background:rgba(76,175,124,.2);border-radius:var(--rfull);padding:6px 12px;}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--ab);animation:pulse 1.8s infinite;}
+.live-txt{font-size:10px;font-weight:800;color:var(--ab);letter-spacing:1px;}
+.hdr-sub-txt{font-size:12px;color:rgba(255,255,255,.45);margin-bottom:16px;position:relative;z-index:1;}
+.impact-row{display:flex;gap:6px;background:rgba(255,255,255,.08);border-radius:var(--r16);padding:12px;margin-bottom:12px;position:relative;z-index:1;}
+.imp-item{flex:1;text-align:center;}
+.imp-ico{font-size:18px;display:block;margin-bottom:3px;}
+.imp-val{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:#fff;display:block;}
+.imp-lbl{font-size:9px;color:rgba(255,255,255,.45);}
+.ticker-wrap{display:flex;align-items:center;gap:7px;background:rgba(76,175,124,.14);border-radius:var(--rfull);padding:7px 13px;overflow:hidden;position:relative;z-index:1;}
+.t-dot{width:7px;height:7px;border-radius:50%;background:var(--ab);flex-shrink:0;animation:pulse 1.5s infinite;}
+.ticker-inner{overflow:hidden;flex:1;}
+.ticker-txt{font-size:11px;color:rgba(255,255,255,.75);white-space:nowrap;animation:none;}
+.sec{padding:18px 16px;}
+.sec-title{font-size:17px;font-weight:800;color:var(--tp);margin-bottom:13px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+.grid-full{grid-column:1/-1;}
+.act-card{border-radius:var(--r20);padding:18px;cursor:pointer;box-shadow:var(--s2);transition:transform .2s,box-shadow .2s;position:relative;overflow:hidden;min-height:120px;display:flex;flex-direction:column;animation:fadeUp .4s ease both;}
+.act-card:hover{transform:translateY(-3px);box-shadow:var(--s3);}
+.act-card:active{transform:scale(.97);}
+.ac-ico{font-size:26px;display:block;margin-bottom:9px;}
+.ac-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#fff;}
+.ac-sub{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;}
+.ac-arr{position:absolute;bottom:13px;right:13px;color:rgba(255,255,255,.35);font-size:16px;}
+.net-row{display:flex;gap:9px;}
+.net-card{flex:1;background:var(--w);border-radius:var(--r16);padding:13px;text-align:center;box-shadow:var(--s1);}
+.net-ico{font-size:20px;display:block;margin-bottom:5px;}
+.net-cnt{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--pl);display:block;}
+.net-lbl{font-size:9px;color:var(--tm);}
+.act-item{display:flex;align-items:center;gap:11px;background:var(--w);border-radius:var(--r12);padding:13px;margin-bottom:7px;box-shadow:var(--s1);}
+.act-dot{width:9px;height:9px;border-radius:50%;background:var(--a);flex-shrink:0;}
+.act-content{flex:1;}
+.act-title{font-size:13px;font-weight:700;color:var(--tp);}
+.act-sub{font-size:11px;color:var(--tm);margin-top:1px;}
+.act-time{font-size:10px;color:var(--tm);}
+
+/* ══════════════════════════════════════════
+   DONATE
+══════════════════════════════════════════ */
+.preview-box{background:rgba(76,175,124,.1);border-radius:var(--r12);padding:13px;border-left:4px solid var(--a);display:none;}
+.prev-title{font-size:11px;font-weight:800;color:var(--pl);margin-bottom:4px;text-transform:uppercase;letter-spacing:.6px;}
+.prev-txt{font-size:13px;color:var(--tp);font-weight:500;}
+.prev-co2{font-size:12px;color:var(--ok);margin-top:4px;font-weight:600;}
+.how-card{background:var(--w);border-radius:var(--r20);padding:18px;box-shadow:var(--s1);}
+.how-title{font-size:15px;font-weight:800;color:var(--tp);margin-bottom:13px;}
+.how-step{display:flex;align-items:center;gap:10px;padding:8px 0;}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--pl);display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;font-weight:800;flex-shrink:0;}
+
+/* ══════════════════════════════════════════
+   RESPONSE
+══════════════════════════════════════════ */
+.res-hdr{background:linear-gradient(160deg,var(--dark),var(--p),var(--pm));padding:52px 22px 24px;text-align:center;flex-shrink:0;}
+.check-circle{width:76px;height:76px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;margin:0 auto 14px;box-shadow:0 8px 32px rgba(76,175,124,.45);animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1);}
+.check-svg{width:36px;height:36px;}
+.check-svg path{stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:100;stroke-dashoffset:100;animation:checkDraw .5s ease .4s forwards;}
+.res-id{font-size:11px;color:rgba(255,255,255,.35);margin-top:4px;letter-spacing:1px;}
+.res-content{padding:14px;display:flex;flex-direction:column;gap:11px;padding-bottom:28px;}
+.res-card{background:var(--w);border-radius:var(--r20);padding:17px;box-shadow:var(--s1);}
+.meals-row{display:flex;justify-content:space-between;align-items:center;}
+.meals-lbl{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;}
+.meals-num{font-family:'Syne',sans-serif;font-size:50px;font-weight:900;color:var(--tp);line-height:1;letter-spacing:-2px;}
+.food-badge{display:inline-block;background:rgba(76,175,124,.15);border-radius:var(--rfull);padding:4px 12px;font-size:12px;color:var(--pl);font-weight:700;margin-top:8px;}
+.ai-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(26,107,74,.1);border-radius:var(--rfull);padding:4px 10px;margin-bottom:10px;}
+.ai-badge-txt{font-size:10px;font-weight:800;color:var(--pl);letter-spacing:1px;}
+.route-row{display:flex;align-items:center;gap:10px;}
+.route-ico{font-size:26px;}
+.route-txt{font-family:'Syne',sans-serif;font-size:21px;font-weight:900;}
+.route-reason{font-size:12px;color:var(--tm);margin-top:8px;font-style:italic;line-height:1.5;}
+.ngo-lbl{font-size:10px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;margin-bottom:5px;}
+.ngo-name{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--tp);margin-bottom:13px;}
+.ngo-mets{display:flex;}
+.ngo-met{flex:1;text-align:center;}
+.met-ico{font-size:16px;display:block;margin-bottom:3px;}
+.met-val{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:var(--tp);display:block;}
+.met-lbl{font-size:9px;color:var(--tm);}
+.met-div{width:1px;background:var(--bor);margin:4px 0;}
+.eta-pulse{animation:pulse 2s infinite;color:var(--ok)!important;}
+.imp-res-card{background:rgba(76,175,124,.08);border:1px solid rgba(76,175,124,.2);}
+.imp-res-title{font-size:13px;font-weight:800;color:var(--pl);margin-bottom:12px;}
+.imp-res-row{display:flex;}
+.imp-res-item{flex:1;text-align:center;}
+.irv{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--pl);display:block;}
+.irl{font-size:9px;color:var(--tm);}
+.status-card{background:rgba(39,174,96,.08);border:1px solid rgba(39,174,96,.2);}
+.st-row{display:flex;align-items:center;gap:8px;margin-bottom:5px;}
+.st-dot{width:9px;height:9px;border-radius:50%;background:var(--ok);animation:pulse 2s infinite;}
+.st-txt{font-size:13px;font-weight:700;color:var(--tp);}
+.st-sub{font-size:12px;color:var(--tm);line-height:1.5;}
+.res-actions{display:flex;flex-direction:column;gap:9px;}
+
+/* ══════════════════════════════════════════
+   FIND FOOD
+══════════════════════════════════════════ */
+.search-bar{display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.12);border-radius:var(--r12);padding:0 13px;margin-top:13px;}
+.search-bar input{flex:1;padding:11px 0;background:none;border:none;outline:none;color:#fff;font-size:13px;font-family:'DM Sans',sans-serif;}
+.search-bar input::placeholder{color:rgba(255,255,255,.35);}
+.pills{display:flex;gap:7px;overflow-x:auto;padding-bottom:3px;margin-top:11px;}
+.pills::-webkit-scrollbar{display:none;}
+.pill{padding:7px 14px;border-radius:var(--rfull);background:rgba(255,255,255,.1);font-size:12px;font-weight:600;color:rgba(255,255,255,.65);cursor:pointer;white-space:nowrap;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.pill.on{background:var(--a);color:#fff;}
+.food-list{padding:14px;flex:1;}
+.food-card{background:var(--w);border-radius:var(--r20);padding:15px;margin-bottom:11px;box-shadow:var(--s1);animation:fadeUp .4s ease both;transition:transform .15s;}
+.food-card:hover{transform:translateY(-2px);}
+.food-card.is-claimed{opacity:.6;}
+.fc-top{display:flex;gap:10px;margin-bottom:11px;}
+.fc-left{flex:1;}
+.fc-right{text-align:center;}
+.fc-type{font-size:15px;font-weight:800;color:var(--tp);}
+.fc-src{font-size:11px;color:var(--tm);margin-top:2px;}
+.fc-qty{font-family:'Syne',sans-serif;font-size:30px;font-weight:900;color:var(--pl);line-height:1;}
+.fc-qlbl{font-size:10px;color:var(--tm);}
+.stag{display:inline-flex;align-items:center;gap:4px;border-radius:var(--rfull);padding:3px 9px;margin-top:7px;}
+.stag-dot{width:6px;height:6px;border-radius:50%;}
+.stag-txt{font-size:10px;font-weight:700;}
+.stag.avail{background:rgba(39,174,96,.12);}
+.stag.avail .stag-dot{background:var(--ok);}
+.stag.avail .stag-txt{color:var(--ok);}
+.stag.clmd{background:rgba(107,143,113,.12);}
+.stag.clmd .stag-dot{background:var(--tm);}
+.stag.clmd .stag-txt{color:var(--tm);}
+.fc-mets{display:flex;gap:12px;padding-top:9px;border-top:1px solid var(--bor);margin-bottom:11px;}
+.fc-met{display:flex;align-items:center;gap:4px;}
+.fc-mi{font-size:12px;}
+.fc-mt{font-size:11px;color:var(--ts);font-weight:600;}
+.fc-mt.warn{color:var(--warn);}
+.btn-claim{width:100%;padding:10px;border:none;border-radius:var(--r12);background:var(--pl);color:#fff;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+.btn-claim:hover{background:var(--p);}
+.btn-claim.off{background:var(--sur);color:var(--tm);cursor:default;}
+
+/* ══════════════════════════════════════════
+   MAP
+══════════════════════════════════════════ */
+.map-canvas{background:linear-gradient(135deg,#1a3a2a,#152d22);position:relative;overflow:hidden;flex-shrink:0;height:280px;}
+.map-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(76,175,124,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(76,175,124,.06) 1px,transparent 1px);background-size:40px 40px;}
+.map-road-h{position:absolute;height:6px;background:rgba(76,175,124,.18);border-radius:3px;}
+.map-road-v{position:absolute;width:6px;background:rgba(76,175,124,.18);border-radius:3px;}
+.map-pin{position:absolute;transform:translate(-50%,-100%);cursor:pointer;transition:transform .2s;}
+.map-pin:hover{transform:translate(-50%,-100%) scale(1.2);}
+.pin-body{width:32px;height:32px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(0,0,0,.3);}
+.pin-ico{transform:rotate(45deg);font-size:14px;}
+.pin-pulse{position:absolute;width:32px;height:32px;border-radius:50%;opacity:.3;animation:ripple 2s infinite;}
+.you-pin{position:absolute;transform:translate(-50%,-50%);z-index:10;}
+.you-dot{width:14px;height:14px;border-radius:50%;background:#fff;border:3px solid var(--pl);box-shadow:0 0 0 6px rgba(26,107,74,.2);}
+.you-label{font-size:9px;color:rgba(255,255,255,.7);text-align:center;margin-top:4px;background:rgba(0,0,0,.4);padding:2px 6px;border-radius:var(--rfull);}
+.map-leg{padding:14px 16px;}
+.leg-title{font-size:13px;font-weight:800;color:var(--tp);margin-bottom:9px;}
+.leg-row{display:flex;gap:14px;flex-wrap:wrap;}
+.leg-item{display:flex;align-items:center;gap:6px;}
+.leg-dot{width:10px;height:10px;border-radius:50%;}
+.leg-lbl{font-size:11px;color:var(--ts);font-weight:600;}
+.loc-list{padding:0 14px 14px;}
+.loc-item{display:flex;align-items:center;gap:9px;background:var(--w);border-radius:var(--r12);padding:11px 13px;margin-bottom:7px;box-shadow:var(--s1);cursor:pointer;transition:all .15s;border:2px solid transparent;}
+.loc-item:hover{transform:translateX(4px);}
+.loc-item.sel{border-color:var(--pl);}
+.loc-dot{width:11px;height:11px;border-radius:50%;flex-shrink:0;}
+.loc-info{flex:1;}
+.loc-name{font-size:13px;font-weight:700;color:var(--tp);}
+.loc-type{font-size:10px;color:var(--tm);margin-top:1px;}
+.loc-qty{font-size:11px;font-weight:700;color:var(--pl);}
+.map-detail-panel{position:absolute;bottom:0;left:0;right:0;background:var(--w);border-radius:var(--r24) var(--r24) 0 0;padding:14px 18px 20px;box-shadow:0 -8px 32px rgba(0,0,0,.2);transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);}
+.map-detail-panel.open{transform:translateY(0);}
+.panel-handle{width:36px;height:4px;background:var(--bor);border-radius:2px;margin:0 auto 14px;}
+.panel-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--tp);margin-bottom:10px;}
+.panel-mets{display:flex;gap:20px;margin-bottom:13px;}
+.panel-met .pm-val{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--tp);}
+.panel-met .pm-lbl{font-size:10px;color:var(--tm);}
+
+/* ══════════════════════════════════════════
+   IMPACT
+══════════════════════════════════════════ */
+.hero-cnt-card{background:rgba(255,255,255,.1);border-radius:var(--r20);padding:18px;text-align:center;margin-top:13px;}
+.hcc-label{font-size:11px;color:rgba(255,255,255,.55);font-weight:600;letter-spacing:.5px;margin-bottom:7px;display:block;}
+.hcc-number{font-family:'Syne',sans-serif;font-size:58px;font-weight:900;color:#fff;line-height:1;letter-spacing:-3px;}
+.hcc-unit{font-size:12px;color:rgba(255,255,255,.4);margin-top:5px;display:block;}
+.met-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:14px 14px 0;}
+.met-card{border-radius:var(--r20);padding:16px;box-shadow:var(--s2);animation:fadeUp .4s ease both;}
+.mc-ico{font-size:24px;display:block;margin-bottom:9px;}
+.mc-val{font-family:'Syne',sans-serif;font-size:25px;font-weight:900;color:#fff;line-height:1;}
+.mc-unit{font-size:9px;color:rgba(255,255,255,.6);text-transform:uppercase;letter-spacing:.8px;margin-top:2px;display:block;}
+.mc-lbl{font-size:11px;color:#fff;font-weight:700;margin-top:7px;display:block;}
+.mc-form{font-size:9px;color:rgba(255,255,255,.4);margin-top:2px;display:block;}
+.chart-wrap{background:var(--w);border-radius:var(--r20);padding:18px;margin:14px;box-shadow:var(--s1);}
+.chart-toggle{display:flex;background:var(--sur);border-radius:var(--rfull);padding:3px;margin-bottom:15px;}
+.tog-btn{flex:1;padding:8px;border-radius:var(--rfull);border:none;background:none;font-size:12px;font-weight:600;color:var(--tm);cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;}
+.tog-btn.on{background:var(--pl);color:#fff;}
+.chart-area{display:flex;align-items:flex-end;gap:5px;height:130px;padding-bottom:20px;position:relative;}
+.bar-grp{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;}
+.bar{width:100%;border-radius:5px 5px 0 0;background:linear-gradient(to top,var(--pl),var(--ab));min-height:3px;transition:height .7s cubic-bezier(.34,1.56,.64,1);}
+.bar.last{background:linear-gradient(to top,var(--a),var(--ab));}
+.bar-lbl{font-size:9px;color:var(--tm);margin-top:3px;position:absolute;bottom:0;}
+.equiv-wrap{background:var(--w);border-radius:var(--r20);padding:18px;margin:0 14px 14px;box-shadow:var(--s1);}
+.eq-title{font-size:15px;font-weight:800;color:var(--tp);margin-bottom:12px;}
+.eq-item{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid var(--bor);}
+.eq-item:last-child{border-bottom:none;}
+.eq-ico{font-size:24px;}
+.eq-txt{font-size:13px;font-weight:700;color:var(--tp);}
+.eq-sub{font-size:10px;color:var(--tm);margin-top:2px;}
+
+/* ══════════════════════════════════════════
+   BIOGAS
+══════════════════════════════════════════ */
+.ben-row{display:flex;gap:7px;flex-wrap:wrap;margin-top:13px;}
+.ben-chip{padding:5px 12px;border-radius:var(--rfull);background:rgba(255,255,255,.14);font-size:11px;color:rgba(255,255,255,.8);font-weight:600;}
+.bg-success{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 24px;text-align:center;background:linear-gradient(160deg,#2D1B69,#4527A0,#673AB7);}
+.bgs-ico{font-size:68px;margin-bottom:14px;animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1);}
+.bgs-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:900;color:#fff;margin-bottom:10px;}
+.bgs-sub{font-size:13px;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:20px;}
+.bgs-energy-card{background:rgba(255,255,255,.12);border-radius:var(--r20);padding:18px;width:100%;margin-bottom:18px;}
+.bec-title{font-size:10px;color:rgba(255,255,255,.55);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;}
+.bec-num{font-family:'Syne',sans-serif;font-size:44px;font-weight:900;color:#fff;display:block;margin:7px 0 3px;}
+.bec-sub{font-size:12px;color:rgba(255,255,255,.45);}
+.btn-white-outline{padding:12px 28px;border:2px solid rgba(255,255,255,.35);border-radius:var(--r16);background:none;color:#fff;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;cursor:pointer;transition:all .15s;}
+.btn-white-outline:hover{background:rgba(255,255,255,.1);}
+.btn-purple{background:linear-gradient(135deg,#4527A0,#673AB7);color:#fff;box-shadow:0 4px 20px rgba(69,39,160,.4);}
+.btn-purple:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(69,39,160,.5);}
+
+/* ══════════════════════════════════════════
+   BOTTOM NAV
+══════════════════════════════════════════ */
+.bottom-nav{display:flex;background:var(--w);border-top:1px solid var(--bor);padding:8px 0 12px;flex-shrink:0;box-shadow:0 -4px 20px rgba(0,0,0,.06);}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;border:none;background:none;cursor:pointer;padding:4px 0;transition:all .15s;font-family:'DM Sans',sans-serif;}
+.nav-btn:active{transform:scale(.9);}
+.nav-ico{font-size:20px;transition:transform .2s;}
+.nav-btn.on .nav-ico{transform:scale(1.2);}
+.nav-lbl{font-size:9px;font-weight:600;color:var(--tm);transition:color .15s;}
+.nav-btn.on .nav-lbl{color:var(--pl);}
+.nav-indicator{width:4px;height:4px;border-radius:50%;background:var(--pl);margin:0 auto;opacity:0;transition:opacity .15s;}
+.nav-btn.on .nav-indicator{opacity:1;}
+
+/* ══════════════════════════════════════════
+   PROFILE
+══════════════════════════════════════════ */
+.profile-hdr{background:linear-gradient(160deg,var(--dark),var(--p));padding:52px 22px 28px;text-align:center;flex-shrink:0;position:relative;overflow:hidden;}
+.profile-avatar{width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--pl),var(--a));display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 12px;box-shadow:0 8px 24px rgba(26,107,74,.3);}
+.profile-name{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#fff;}
+.profile-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(76,175,124,.2);border-radius:var(--rfull);padding:5px 14px;margin-top:8px;}
+.profile-badge-txt{font-size:11px;color:var(--ab);font-weight:700;}
+.profile-stats{display:flex;gap:6px;margin-top:18px;}
+.ps-item{flex:1;background:rgba(255,255,255,.1);border-radius:var(--r12);padding:12px;text-align:center;}
+.ps-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#fff;display:block;}
+.ps-lbl{font-size:9px;color:rgba(255,255,255,.45);margin-top:2px;}
+.setting-item{display:flex;align-items:center;gap:12px;padding:14px 16px;background:var(--w);border-bottom:1px solid var(--bor);cursor:pointer;transition:background .15s;}
+.setting-item:hover{background:var(--ow);}
+.si-ico{font-size:20px;width:36px;height:36px;background:var(--sur);border-radius:var(--r8);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.si-info{flex:1;}
+.si-title{font-size:14px;font-weight:600;color:var(--tp);}
+.si-sub{font-size:11px;color:var(--tm);margin-top:1px;}
+.si-arr{color:var(--tm);font-size:16px;}
+.toggle-switch{width:44px;height:24px;background:var(--bor);border-radius:var(--rfull);position:relative;cursor:pointer;transition:background .2s;}
+.toggle-switch.on{background:var(--pl);}
+.toggle-knob{width:20px;height:20px;border-radius:50%;background:#fff;position:absolute;top:2px;left:2px;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.toggle-switch.on .toggle-knob{transform:translateX(20px);}
+</style>
+</head>
+<body>
+<div id="shell">
+
+  <!-- ════════════════ LOGIN ════════════════ -->
+  <div id="s-login" class="scr active" style="background:linear-gradient(160deg,#042D1E,#0A3B2E,#1A6B4A);">
+    <div class="login-wrap">
+      <div class="login-logo">
+        <span class="leaf-anim">🌿</span>
+        <div class="brand-name">PAGIR</div>
+        <span class="brand-tag">Rescue Food · Save the Planet</span>
+      </div>
+      <div class="stats-strip">
+        <div class="ss-item"><span class="ss-val" id="ss-meals">124K</span><span class="ss-lbl">Meals Saved</span></div>
+        <div class="ss-item"><span class="ss-val">37T</span><span class="ss-lbl">CO₂ Reduced</span></div>
+        <div class="ss-item"><span class="ss-val">34</span><span class="ss-lbl">NGO Partners</span></div>
+      </div>
+      <div class="login-card">
+        <div class="lc-title">Welcome Back</div>
+        <div class="lc-sub">Sign in to continue your impact</div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">📧</span><input type="email" id="li-email" placeholder="Email address" autocomplete="email"></div>
+        </div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">🔒</span><input type="password" id="li-pass" placeholder="Password" autocomplete="current-password"><span class="ico" style="cursor:pointer" onclick="togglePass()">👁️</span></div>
+        </div>
+        <div id="li-err" style="font-size:12px;color:var(--err);margin-bottom:10px;display:none;"></div>
+        <div style="text-align:right;margin-bottom:12px;margin-top:-4px;">
+          <span style="font-size:12px;color:var(--pl);font-weight:600;cursor:pointer;" onclick="showForgot()">Forgot password?</span>
+        </div>
+        <button class="btn btn-green btn-full" onclick="doLogin()">→ Sign In</button>
+        <div class="divider"><div class="div-line"></div><span class="div-txt">or</span><div class="div-line"></div></div>
+        <button class="btn btn-ghost btn-full" onclick="goGuest()">Continue as Guest 👋</button>
+        <div style="text-align:center;margin-top:16px;">
+          <span style="font-size:13px;color:var(--tm);">Don't have an account? </span>
+          <span style="font-size:13px;color:var(--pl);font-weight:700;cursor:pointer;" onclick="go('signup')">Create Account →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ SIGNUP ════════════════ -->
+  <div id="s-signup" class="scr" style="background:linear-gradient(160deg,#042D1E,#0A3B2E,#1A6B4A);">
+    <div class="login-wrap">
+      <div class="login-logo" style="padding-top:36px;padding-bottom:16px;">
+        <span style="font-size:40px;display:block;margin-bottom:6px;">🌱</span>
+        <div class="brand-name" style="font-size:36px;letter-spacing:6px;">Join PAGIR</div>
+        <span class="brand-tag">Start rescuing food today</span>
+      </div>
+      <div class="login-card">
+        <div class="lc-title">Create Account</div>
+        <div class="lc-sub">Join 800+ food rescuers making a difference</div>
+
+        <!-- Role selector -->
+        <div class="field">
+          <label class="label">I am a...</label>
+          <div class="chips" id="role-chips">
+            <button class="chip on" onclick="selChipGroup(this,'role-chips')">🏠 Donor</button>
+            <button class="chip" onclick="selChipGroup(this,'role-chips')">🤝 Volunteer</button>
+            <button class="chip" onclick="selChipGroup(this,'role-chips')">❤️ NGO</button>
+            <button class="chip" onclick="selChipGroup(this,'role-chips')">⚡ Biogas Plant</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">👤</span><input type="text" id="su-name" placeholder="Full name"></div>
+          <div class="field-err" id="e-suname"></div>
+        </div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">📧</span><input type="email" id="su-email" placeholder="Email address" autocomplete="email"></div>
+          <div class="field-err" id="e-suemail"></div>
+        </div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">📞</span><input type="tel" id="su-phone" placeholder="Phone number (optional)"></div>
+        </div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">📍</span><input type="text" id="su-city" placeholder="City / Area (e.g. Chennai)"></div>
+          <div class="field-err" id="e-sucity"></div>
+        </div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">🔒</span><input type="password" id="su-pass" placeholder="Create password" oninput="checkPassStrength()"><span class="ico" style="cursor:pointer" onclick="toggleSignupPass()">👁️</span></div>
+          <div id="pass-strength" style="margin-top:6px;display:none;">
+            <div style="display:flex;gap:4px;margin-bottom:4px;">
+              <div id="ps1" style="flex:1;height:3px;border-radius:2px;background:var(--bor);transition:background .3s;"></div>
+              <div id="ps2" style="flex:1;height:3px;border-radius:2px;background:var(--bor);transition:background .3s;"></div>
+              <div id="ps3" style="flex:1;height:3px;border-radius:2px;background:var(--bor);transition:background .3s;"></div>
+              <div id="ps4" style="flex:1;height:3px;border-radius:2px;background:var(--bor);transition:background .3s;"></div>
+            </div>
+            <span id="ps-label" style="font-size:11px;color:var(--tm);font-weight:600;"></span>
+          </div>
+          <div class="field-err" id="e-supass"></div>
+        </div>
+        <div class="field">
+          <div class="inp-wrap"><span class="ico">🔒</span><input type="password" id="su-pass2" placeholder="Confirm password"></div>
+          <div class="field-err" id="e-supass2"></div>
+        </div>
+
+        <!-- Terms -->
+        <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:16px;">
+          <div id="terms-check" onclick="toggleTerms()" style="width:20px;height:20px;border-radius:5px;border:2px solid var(--bor);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:1px;"></div>
+          <span style="font-size:12px;color:var(--tm);line-height:1.5;">I agree to PAGIR's <span style="color:var(--pl);font-weight:600;cursor:pointer;">Terms of Service</span> and <span style="color:var(--pl);font-weight:600;cursor:pointer;">Privacy Policy</span></span>
+        </div>
+        <div class="field-err" id="e-terms" style="margin-top:-10px;margin-bottom:10px;"></div>
+
+        <button class="btn btn-green btn-full" onclick="doSignup()">🌿 Create My Account</button>
+
+        <div style="text-align:center;margin-top:14px;">
+          <span style="font-size:13px;color:var(--tm);">Already have an account? </span>
+          <span style="font-size:13px;color:var(--pl);font-weight:700;cursor:pointer;" onclick="goBack()">Sign In →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ SIGNUP SUCCESS ════════════════ -->
+  <div id="s-signup-success" class="scr" style="background:linear-gradient(160deg,#042D1E,#0A3B2E,#1A6B4A);">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 28px;text-align:center;">
+      <div style="width:90px;height:90px;border-radius:50%;background:var(--a);display:flex;align-items:center;justify-content:center;font-size:42px;margin-bottom:20px;box-shadow:0 8px 32px rgba(76,175,124,.4);animation:scaleIn .5s cubic-bezier(.34,1.56,.64,1);">🌿</div>
+      <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:900;color:#fff;margin-bottom:10px;">Welcome to PAGIR!</div>
+      <div style="font-size:14px;color:rgba(255,255,255,.65);line-height:1.6;margin-bottom:28px;" id="signup-welcome-msg">Your account has been created successfully. Let's start rescuing food!</div>
+
+      <!-- Impact pledge card -->
+      <div style="background:rgba(255,255,255,.1);border-radius:20px;padding:20px;width:100%;margin-bottom:24px;">
+        <div style="font-size:11px;color:rgba(255,255,255,.55);letter-spacing:1.5px;text-transform:uppercase;font-weight:600;margin-bottom:14px;">🎯 Your First Week Goals</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:18px;">🍱</span><span style="font-size:13px;color:rgba(255,255,255,.8);">Make your first food donation</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:18px;">🗺️</span><span style="font-size:13px;color:rgba(255,255,255,.8);">Explore the live food map</span></div>
+          <div style="display:flex;align-items:center;gap:10px;"><span style="font-size:18px;">📊</span><span style="font-size:13px;color:rgba(255,255,255,.8);">Check your impact dashboard</span></div>
+        </div>
+      </div>
+
+      <button class="btn btn-green btn-full" style="background:linear-gradient(135deg,#fff,#f0f8f0);color:var(--pl);font-size:15px;" onclick="finishSignup()">🚀 Let's Get Started!</button>
+    </div>
+  </div>
+
+  <!-- ════════════════ HOME ════════════════ -->
+  <div id="s-home" class="scr">
+    <div class="home-hdr">
+      <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div>
+      <div class="hdr-top-row">
+        <div><div class="greet" id="greet-txt"></div><div class="hdr-main-title"><span class="pagir-accent">PAGIR</span> Dashboard</div></div>
+        <div class="live-badge"><div class="live-dot"></div><span class="live-txt">LIVE</span></div>
+      </div>
+      <div class="hdr-sub-txt">Together we've rescued <strong style="color:var(--ab)">124K+</strong> meals and counting</div>
+      <div class="impact-row">
+        <div class="imp-item"><span class="imp-ico">🍱</span><span class="imp-val" id="h-meals">124K</span><span class="imp-lbl">Meals Rescued</span></div>
+        <div class="imp-item"><span class="imp-ico">🌍</span><span class="imp-val">37Kkg</span><span class="imp-lbl">CO₂ Saved</span></div>
+        <div class="imp-item"><span class="imp-ico">⚡</span><span class="imp-val">9.3K</span><span class="imp-lbl">kWh Energy</span></div>
+      </div>
+      <div class="ticker-wrap">
+        <div class="t-dot"></div>
+        <div class="ticker-inner"><span class="ticker-txt" id="ticker-txt"></span></div>
+      </div>
+    </div>
+    <div class="scroll-body">
+      <div class="sec">
+        <div class="sec-title">What would you like to do?</div>
+        <div class="grid2">
+          <div class="act-card" style="background:linear-gradient(135deg,#0F5239,#1A6B4A);animation-delay:.05s" onclick="go('donate')"><span class="ac-ico">🍱</span><div class="ac-title">Donate Food</div><div class="ac-sub">Report surplus meals</div><span class="ac-arr">→</span></div>
+          <div class="act-card" style="background:linear-gradient(135deg,#1565C0,#1A73E8);animation-delay:.1s" onclick="go('find')"><span class="ac-ico">🔍</span><div class="ac-title">Find Nearby</div><div class="ac-sub">Claim available food</div><span class="ac-arr">→</span></div>
+          <div class="act-card" style="background:linear-gradient(135deg,#2E7D32,#43A047);animation-delay:.15s" onclick="go('map')"><span class="ac-ico">🗺️</span><div class="ac-title">View Map</div><div class="ac-sub">Live donation map</div><span class="ac-arr">→</span></div>
+          <div class="act-card" style="background:linear-gradient(135deg,#E65100,#FF7043);animation-delay:.2s" onclick="go('impact')"><span class="ac-ico">📊</span><div class="ac-title">Impact</div><div class="ac-sub">Carbon savings</div><span class="ac-arr">→</span></div>
+          <div class="act-card grid-full" style="background:linear-gradient(135deg,#4527A0,#7B1FA2);animation-delay:.25s" onclick="go('biogas')"><span class="ac-ico">⚡</span><div class="ac-title">Register Biogas Plant</div><div class="ac-sub">Join our clean energy network</div><span class="ac-arr">→</span></div>
+        </div>
+      </div>
+      <div class="sec" style="padding-top:0">
+        <div class="sec-title">Our Network</div>
+        <div class="net-row">
+          <div class="net-card"><span class="net-ico">🏢</span><span class="net-cnt">842</span><span class="net-lbl">Active Donors</span></div>
+          <div class="net-card"><span class="net-ico">❤️</span><span class="net-cnt">34</span><span class="net-lbl">NGO Partners</span></div>
+          <div class="net-card"><span class="net-ico">⚡</span><span class="net-cnt">7</span><span class="net-lbl">Biogas Plants</span></div>
+        </div>
+      </div>
+      <div class="sec" style="padding-top:0;padding-bottom:24px">
+        <div class="sec-title">Recent Activity</div>
+        <div id="activity-feed"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ DONATE ════════════════ -->
+  <div id="s-donate" class="scr">
+    <div class="hdr hdr-grad">
+      <div class="orb o1"></div><div class="orb o2"></div>
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <span class="hdr-emoji">🍱</span>
+      <div class="hdr-title">Donate Food</div>
+      <div class="hdr-sub">Fill in details — AI will route your donation to the nearest recipient in minutes</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;">
+        <span style="background:rgba(76,175,124,.2);border-radius:var(--rfull);padding:4px 11px;font-size:10px;color:rgba(255,255,255,.8);font-weight:600;">⚡ AI Routing</span>
+        <span style="background:rgba(76,175,124,.2);border-radius:var(--rfull);padding:4px 11px;font-size:10px;color:rgba(255,255,255,.8);font-weight:600;">📍 Location Match</span>
+        <span style="background:rgba(76,175,124,.2);border-radius:var(--rfull);padding:4px 11px;font-size:10px;color:rgba(255,255,255,.8);font-weight:600;">♻️ Zero Waste</span>
+      </div>
+    </div>
+    <div class="scroll-body" style="padding:14px 14px 28px;">
+      <div class="card" style="margin-bottom:12px;">
+        <div style="font-size:16px;font-weight:800;color:var(--tp);margin-bottom:16px;">Donation Details</div>
+        <div class="field">
+          <label class="label">Food Type</label>
+          <div class="inp-wrap"><span class="ico">🍽️</span><input id="d-type" placeholder="e.g. Veg Biryani, Idli, Dal Rice..." oninput="updatePreview()"></div>
+          <div class="chips" style="margin-top:8px;">
+            <button class="chip" onclick="setFoodType(this,'Veg Biryani')">Veg Biryani</button>
+            <button class="chip" onclick="setFoodType(this,'Idli & Sambar')">Idli & Sambar</button>
+            <button class="chip" onclick="setFoodType(this,'Dal & Rice')">Dal & Rice</button>
+            <button class="chip" onclick="setFoodType(this,'Pongal')">Pongal</button>
+            <button class="chip" onclick="setFoodType(this,'Chapati & Curry')">Chapati & Curry</button>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Quantity (Meals) 🍱</label>
+          <div class="inp-wrap"><span class="ico">🔢</span><input id="d-qty" type="number" min="1" placeholder="e.g. 50" oninput="updatePreview()"></div>
+        </div>
+        <div class="field">
+          <label class="label">Time Cooked 🕐</label>
+          <div class="inp-wrap"><span class="ico">⏰</span><input id="d-time" type="time" value="19:00"></div>
+        </div>
+        <div class="field">
+          <label class="label">Pickup Location 📍</label>
+          <div class="inp-wrap"><span class="ico">📍</span><input id="d-loc" placeholder="e.g. Anna Nagar, Chennai" oninput="updatePreview()"></div>
+        </div>
+        <div class="field">
+          <label class="label">Source Type</label>
+          <div class="chips" id="src-chips">
+            <button class="chip on" onclick="selChip(this,'src')">🏠 Home</button>
+            <button class="chip" onclick="selChip(this,'src')">🍽️ Restaurant</button>
+            <button class="chip" onclick="selChip(this,'src')">🎉 Event</button>
+            <button class="chip" onclick="selChip(this,'src')">🏢 Canteen</button>
+            <button class="chip" onclick="selChip(this,'src')">👨‍🍳 Caterer</button>
+          </div>
+        </div>
+        <div class="preview-box" id="don-preview">
+          <div class="prev-title">📋 Donation Summary</div>
+          <div class="prev-txt" id="prev-txt"></div>
+          <div class="prev-co2" id="prev-co2"></div>
+        </div>
+      </div>
+      <div class="how-card" style="margin-bottom:14px;">
+        <div class="how-title">How it works</div>
+        <div class="how-step"><div class="step-num">1</div><span style="font-size:13px;">📝 Fill in your food details</span></div>
+        <div class="how-step"><div class="step-num">2</div><span style="font-size:13px;">🤖 AI analyzes quantity & location</span></div>
+        <div class="how-step"><div class="step-num">3</div><span style="font-size:13px;">📍 Routes to nearest NGO or kitchen</span></div>
+        <div class="how-step"><div class="step-num">4</div><span style="font-size:13px;">🚗 Pickup within 15–30 minutes</span></div>
+      </div>
+      <button class="btn btn-green btn-full" id="donate-btn" onclick="submitDonation()">🚀 Report Food Donation</button>
+    </div>
+  </div>
+
+  <!-- ════════════════ RESPONSE ════════════════ -->
+  <div id="s-response" class="scr">
+    <div class="res-hdr">
+      <div class="orb o1"></div>
+      <div class="check-circle">
+        <svg class="check-svg" viewBox="0 0 36 36"><path d="M8 18l7 7 13-13" class="check-svg"/></svg>
+      </div>
+      <div class="hdr-title" style="text-align:center;">Food Report Received!</div>
+      <div class="res-id" id="r-id">Report #RPT_DEMO</div>
+    </div>
+    <div class="scroll-body">
+      <div class="res-content">
+        <div class="res-card meals-row" style="display:block">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><div class="meals-lbl">Meals Reported</div><div class="meals-num" id="r-meals">80</div></div>
+            <span style="font-size:48px;">🍱</span>
+          </div>
+          <span class="food-badge" id="r-ftype">Veg Biryani</span>
+        </div>
+        <div class="res-card">
+          <div class="ai-badge"><span class="ai-badge-txt">🤖 AI RECOMMENDATION</span></div>
+          <div class="route-row"><span class="route-ico" id="r-rico">❤️</span><span class="route-txt" id="r-rec" style="color:var(--ngo)">NGO Pickup</span></div>
+          <div class="route-reason" id="r-reason">"Large quantity suitable for organized NGO distribution"</div>
+        </div>
+        <div class="res-card">
+          <div class="ngo-lbl" id="r-nlbl">❤️ Nearest NGO</div>
+          <div class="ngo-name" id="r-nname">Hope Shelter</div>
+          <div class="ngo-mets">
+            <div class="ngo-met"><span class="met-ico">📍</span><span class="met-val" id="r-dist">2.1 km</span><span class="met-lbl">Distance</span></div>
+            <div class="met-div"></div>
+            <div class="ngo-met"><span class="met-ico">⏱️</span><span class="met-val eta-pulse" id="r-eta">15 min</span><span class="met-lbl">Pickup ETA</span></div>
+            <div class="met-div"></div>
+            <div class="ngo-met"><span class="met-ico">📞</span><span class="met-val" id="r-phone" style="font-size:11px">+91 98765</span><span class="met-lbl">Contact</span></div>
+          </div>
+        </div>
+        <div class="res-card imp-res-card">
+          <div class="imp-res-title">🌱 Your Environmental Impact</div>
+          <div class="imp-res-row">
+            <div class="imp-res-item"><span class="irv" id="r-co2">24.0 kg</span><span class="irl">CO₂ Saved</span></div>
+            <div class="imp-res-item"><span class="irv" id="r-mresc">80</span><span class="irl">Meals Rescued</span></div>
+            <div class="imp-res-item"><span class="irv" id="r-energy">12.0 kWh</span><span class="irl">Energy Potential</span></div>
+          </div>
+        </div>
+        <div class="res-card status-card">
+          <div class="st-row"><div class="st-dot"></div><span class="st-txt">Status: <span style="color:var(--ok);font-weight:800;">CONFIRMED</span></span></div>
+          <div class="st-sub">A pickup volunteer has been notified and is on their way to your location.</div>
+        </div>
+        <div class="res-actions">
+          <button class="btn btn-green btn-full" onclick="go('map')">🗺️ Track on Map</button>
+          <button class="btn btn-outline btn-full" onclick="go('donate')">+ Donate More Food</button>
+          <button class="btn btn-ghost btn-full" onclick="go('home')">← Back to Home</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ FIND FOOD ════════════════ -->
+  <div id="s-find" class="scr">
+    <div class="hdr hdr-grad" style="padding-bottom:14px;">
+      <div class="orb o1"></div><div class="orb o2"></div>
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <div class="hdr-title">🔍 Find Nearby Food</div>
+      <div class="hdr-sub" id="find-count">5 donations available near you</div>
+      <div class="search-bar"><span>🔎</span><input placeholder="Search food or location..." oninput="filterFoods(this.value)" id="food-search"></div>
+      <div class="pills" id="food-pills">
+        <button class="pill on" onclick="setFoodFilter('all',this)">🍽️ All</button>
+        <button class="pill" onclick="setFoodFilter('available',this)">✅ Available</button>
+        <button class="pill" onclick="setFoodFilter('nearby',this)">📍 &lt; 2km</button>
+        <button class="pill" onclick="setFoodFilter('veg',this)">🥦 Veg</button>
+      </div>
+    </div>
+    <div class="scroll-body">
+      <div class="food-list" id="food-list"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════ MAP ════════════════ -->
+  <div id="s-map" class="scr">
+    <div class="hdr hdr-grad" style="padding-bottom:14px;">
+      <div class="orb o1"></div><div class="orb o2"></div>
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <div class="hdr-title">🗺️ Live Map</div>
+      <div class="pills" style="margin-top:11px;" id="map-pills">
+        <button class="pill on" onclick="setMapFilter('all',this)">🔘 All</button>
+        <button class="pill" onclick="setMapFilter('donor',this)">🍱 Donors</button>
+        <button class="pill" onclick="setMapFilter('ngo',this)">❤️ NGOs</button>
+        <button class="pill" onclick="setMapFilter('biogas',this)">⚡ Biogas</button>
+      </div>
+    </div>
+    <div class="scroll-body">
+      <!-- Map visualization -->
+      <div class="map-canvas" id="map-canvas">
+        <div class="map-grid"></div>
+        <!-- Roads -->
+        <div class="map-road-h" style="top:48%;left:0;right:0;"></div>
+        <div class="map-road-h" style="top:25%;left:0;right:0;opacity:.5;height:4px;"></div>
+        <div class="map-road-h" style="top:72%;left:0;right:0;opacity:.5;height:4px;"></div>
+        <div class="map-road-v" style="left:30%;top:0;bottom:0;"></div>
+        <div class="map-road-v" style="left:65%;top:0;bottom:0;opacity:.5;width:4px;"></div>
+        <!-- You are here -->
+        <div class="you-pin" style="left:50%;top:50%;">
+          <div class="you-dot"></div>
+          <div class="you-label">📍 You</div>
+        </div>
+        <!-- Pins rendered by JS -->
+        <div id="map-pins"></div>
+        <!-- Detail panel -->
+        <div class="map-detail-panel" id="map-panel">
+          <div class="panel-handle"></div>
+          <div id="panel-content"></div>
+        </div>
+      </div>
+      <div class="map-leg">
+        <div class="leg-title">Map Legend</div>
+        <div class="leg-row">
+          <div class="leg-item"><div class="leg-dot" style="background:#4CAF7C"></div><span class="leg-lbl">Food Donors</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#1A73E8"></div><span class="leg-lbl">NGOs</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#26A69A"></div><span class="leg-lbl">Kitchens</span></div>
+          <div class="leg-item"><div class="leg-dot" style="background:#FF7043"></div><span class="leg-lbl">Biogas</span></div>
+        </div>
+      </div>
+      <div class="loc-list" id="loc-list"></div>
+    </div>
+  </div>
+
+  <!-- ════════════════ IMPACT ════════════════ -->
+  <div id="s-impact" class="scr">
+    <div class="hdr hdr-grad" style="padding-bottom:18px;">
+      <div class="orb o1"></div><div class="orb o2"></div>
+      <button class="back-btn" onclick="goBack()">← Back</button>
+      <div style="font-size:10px;color:var(--ab);letter-spacing:2px;text-transform:uppercase;font-weight:700;margin-bottom:4px;">Environmental Impact</div>
+      <div class="hdr-title">📊 Our Impact</div>
+      <div class="hero-cnt-card">
+        <span class="hcc-label">🍱 Total Meals Rescued</span>
+        <div class="hcc-number" id="hero-count">0</div>
+        <span class="hcc-unit">meals saved from landfill</span>
+      </div>
+    </div>
+    <div class="scroll-body" style="padding-bottom:24px;">
+      <div class="met-grid">
+        <div class="met-card" style="background:linear-gradient(135deg,#1B5E20,#2E7D32);animation-delay:.05s"><span class="mc-ico">🌍</span><span class="mc-val">37K</span><span class="mc-unit">kg CO₂</span><span class="mc-lbl">Carbon Saved</span><span class="mc-form">124K × 0.3 kg</span></div>
+        <div class="met-card" style="background:linear-gradient(135deg,#E65100,#F57C00);animation-delay:.1s"><span class="mc-ico">🗑️</span><span class="mc-val">18.7K</span><span class="mc-unit">kg</span><span class="mc-lbl">Waste Prevented</span><span class="mc-form">From landfill</span></div>
+        <div class="met-card" style="background:linear-gradient(135deg,#4527A0,#673AB7);animation-delay:.15s"><span class="mc-ico">⚡</span><span class="mc-val">9.3K</span><span class="mc-unit">kWh</span><span class="mc-lbl">Energy Generated</span><span class="mc-form">18.7K × 0.5 kWh</span></div>
+        <div class="met-card" style="background:linear-gradient(135deg,#01579B,#0277BD);animation-delay:.2s"><span class="mc-ico">🏠</span><span class="mc-val">310</span><span class="mc-unit">homes</span><span class="mc-lbl">Powered / Month</span><span class="mc-form">Avg 30 kWh/home</span></div>
+      </div>
+      <div class="chart-wrap">
+        <div style="font-size:16px;font-weight:800;color:var(--tp);margin-bottom:12px;">Monthly Progress</div>
+        <div class="chart-toggle">
+          <button class="tog-btn on" onclick="switchChart('meals',this)">🍱 Meals</button>
+          <button class="tog-btn" onclick="switchChart('co2',this)">🌍 CO₂ (kg)</button>
+        </div>
+        <div class="chart-area" id="chart-area"></div>
+      </div>
+      <div class="equiv-wrap">
+        <div class="eq-title">That's Equivalent To...</div>
+        <div class="eq-item"><span class="eq-ico">🚗</span><div><div class="eq-txt">16,000 car trips avoided</div><div class="eq-sub">avg 2.3 kg CO₂/trip</div></div></div>
+        <div class="eq-item"><span class="eq-ico">💡</span><div><div class="eq-txt">155,000 hours of light</div><div class="eq-sub">60W bulb, 1 kWh = 16.7hrs</div></div></div>
+        <div class="eq-item"><span class="eq-ico">🌳</span><div><div class="eq-txt">1,760 trees equivalent</div><div class="eq-sub">each absorbs ~21 kg CO₂/yr</div></div></div>
+        <div class="eq-item"><span class="eq-ico">✈️</span><div><div class="eq-txt">92 flights offset</div><div class="eq-sub">avg domestic flight ~400kg CO₂</div></div></div>
+      </div>
+      <div style="padding:0 14px 28px;">
+        <button class="btn btn-green btn-full" onclick="go('donate')">🍱 Donate Food to Increase Impact</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ BIOGAS ════════════════ -->
+  <div id="s-biogas" class="scr">
+    <div id="bg-form-view" style="display:flex;flex-direction:column;flex:1;overflow:hidden;">
+      <div class="hdr hdr-purple">
+        <div class="orb o1" style="background:rgba(126,87,194,.15)"></div><div class="orb o2" style="background:rgba(103,58,183,.1)"></div>
+        <button class="back-btn" onclick="goBack()">← Back</button>
+        <span class="hdr-emoji">⚡</span>
+        <div class="hdr-title">Register Biogas Plant</div>
+        <div class="hdr-sub">Join our network and convert food waste into clean energy. Earn revenue from waste you already generate.</div>
+        <div class="ben-row">
+          <span class="ben-chip">♻️ Zero waste</span>
+          <span class="ben-chip">⚡ Earn energy credits</span>
+          <span class="ben-chip">🌍 Save CO₂</span>
+          <span class="ben-chip">💰 Revenue stream</span>
+        </div>
+      </div>
+      <div class="scroll-body" style="padding:14px 14px 28px;">
+        <div class="card" style="margin-bottom:12px;">
+          <div style="font-size:16px;font-weight:800;color:var(--tp);margin-bottom:16px;">Plant Information</div>
+          <div class="field"><label class="label">Plant Name</label><div class="inp-wrap"><span class="ico">🏭</span><input id="bg-name" placeholder="e.g. Chennai East Biogas Plant"></div><div class="field-err" id="e-bgname"></div></div>
+          <div class="field"><label class="label">📍 Location</label><div class="inp-wrap"><span class="ico">📍</span><input id="bg-loc" placeholder="e.g. Sholinganallur, Chennai"></div><div class="field-err" id="e-bgloc"></div></div>
+          <div class="field">
+            <label class="label">⚖️ Capacity (kg/day)</label>
+            <div class="inp-wrap"><span class="ico">⚖️</span><input id="bg-cap" type="number" min="1" placeholder="e.g. 500" oninput="updateEnergyHint()"></div>
+            <div id="energy-hint" style="font-size:12px;color:#673AB7;margin-top:6px;font-weight:600;display:none;"></div>
+            <div class="field-err" id="e-bgcap"></div>
+          </div>
+          <div class="field"><label class="label">📞 Contact Number</label><div class="inp-wrap"><span class="ico">📞</span><input id="bg-contact" type="tel" placeholder="+91 98765 43210"></div><div class="field-err" id="e-bgcontact"></div></div>
+          <div class="field"><label class="label">📧 Email (optional)</label><div class="inp-wrap"><span class="ico">📧</span><input id="bg-email" type="email" placeholder="plant@example.com"></div></div>
+          <div class="field">
+            <label class="label">♻️ Accepted Waste Types</label>
+            <div class="chips" id="waste-chips">
+              <button class="chip" onclick="toggleWaste(this)">Food Waste</button>
+              <button class="chip" onclick="toggleWaste(this)">Veg Peelings</button>
+              <button class="chip" onclick="toggleWaste(this)">Restaurant Waste</button>
+              <button class="chip" onclick="toggleWaste(this)">Agricultural</button>
+              <button class="chip" onclick="toggleWaste(this)">Kitchen Waste</button>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-purple btn-full" onclick="submitBiogas()">⚡ Register Plant</button>
+      </div>
+    </div>
+    <div id="bg-success-view" class="bg-success" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:36px 24px;text-align:center;background:linear-gradient(160deg,#2D1B69,#4527A0,#673AB7);">
+      <div class="bgs-ico">⚡</div>
+      <div class="bgs-title">Plant Registered!</div>
+      <div class="bgs-sub" id="bg-success-msg">Your plant has been registered in the PAGIR network.</div>
+      <div class="bgs-energy-card">
+        <span class="bec-title">YOUR ENERGY POTENTIAL</span>
+        <span class="bec-num" id="bg-energy-num">250 kWh/day</span>
+        <span class="bec-sub" id="bg-energy-sub">from 500 kg/day waste</span>
+      </div>
+      <div style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:20px;">Our team will verify and onboard within 48 hours.</div>
+      <button class="btn-white-outline" onclick="go('home')">← Back to Home</button>
+    </div>
+  </div>
+
+  <!-- ════════════════ PROFILE ════════════════ -->
+  <div id="s-profile" class="scr">
+    <div class="profile-hdr">
+      <div class="orb o1"></div><div class="orb o2"></div>
+      <div class="profile-avatar" id="profile-avatar">👤</div>
+      <div class="profile-name" id="profile-name">Guest User</div>
+      <div class="profile-badge"><span class="profile-badge-txt">🌿 Food Rescuer</span></div>
+      <div class="profile-stats">
+        <div class="ps-item"><span class="ps-val" id="ps-donations">0</span><span class="ps-lbl">Donations</span></div>
+        <div class="ps-item"><span class="ps-val" id="ps-meals">0</span><span class="ps-lbl">Meals</span></div>
+        <div class="ps-item"><span class="ps-val" id="ps-co2">0kg</span><span class="ps-lbl">CO₂ Saved</span></div>
+      </div>
+    </div>
+    <div class="scroll-body">
+      <div style="padding:16px 0 8px 16px;font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;">Preferences</div>
+      <div class="setting-item"><div class="si-ico">🔔</div><div class="si-info"><div class="si-title">Notifications</div><div class="si-sub">Donation alerts & updates</div></div><div class="toggle-switch on" onclick="toggleSetting(this)"><div class="toggle-knob"></div></div></div>
+      <div class="setting-item"><div class="si-ico">📍</div><div class="si-info"><div class="si-title">Location Services</div><div class="si-sub">Find nearby donations</div></div><div class="toggle-switch on" onclick="toggleSetting(this)"><div class="toggle-knob"></div></div></div>
+      <div class="setting-item"><div class="si-ico">🌙</div><div class="si-info"><div class="si-title">Dark Mode</div><div class="si-sub">Easy on the eyes</div></div><div class="toggle-switch" onclick="toggleSetting(this)"><div class="toggle-knob"></div></div></div>
+      <div style="padding:16px 0 8px 16px;font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;">Account</div>
+      <div class="setting-item" onclick="toast('History feature coming soon!')"><div class="si-ico">📜</div><div class="si-info"><div class="si-title">Donation History</div><div class="si-sub">View all your past donations</div></div><span class="si-arr">›</span></div>
+      <div class="setting-item" onclick="toast('Certificates feature coming soon!')"><div class="si-ico">🏆</div><div class="si-info"><div class="si-title">Certificates</div><div class="si-sub">Download your impact report</div></div><span class="si-arr">›</span></div>
+      <div class="setting-item" onclick="toast('n8n Webhook: POST /register-user')"><div class="si-ico">⚙️</div><div class="si-info"><div class="si-title">n8n Integration</div><div class="si-sub">Webhook: /webhook/food-report</div></div><span class="si-arr">›</span></div>
+      <div style="padding:16px 0 8px 16px;font-size:11px;font-weight:700;color:var(--tm);text-transform:uppercase;letter-spacing:.8px;">About</div>
+      <div class="setting-item"><div class="si-ico">🌿</div><div class="si-info"><div class="si-title">PAGIR v1.0.0</div><div class="si-sub">AI-powered food rescue platform</div></div></div>
+      <div style="padding:16px;padding-bottom:28px;">
+        <button class="btn btn-danger btn-full" onclick="logout()" style="font-size:14px;padding:13px;">Sign Out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════ BOTTOM NAV ════════════════ -->
+  <nav class="bottom-nav" id="bottom-nav" style="display:none;">
+    <button class="nav-btn on" onclick="navTo('home',this)" id="nb-home">
+      <span class="nav-ico">🏠</span><span class="nav-lbl">Home</span><div class="nav-indicator"></div>
+    </button>
+    <button class="nav-btn" onclick="navTo('find',this)" id="nb-find">
+      <span class="nav-ico">🔍</span><span class="nav-lbl">Find</span><div class="nav-indicator"></div>
+    </button>
+    <button class="nav-btn" onclick="navTo('donate',this)" id="nb-donate">
+      <span class="nav-ico">🍱</span><span class="nav-lbl">Donate</span><div class="nav-indicator"></div>
+    </button>
+    <button class="nav-btn" onclick="navTo('map',this)" id="nb-map">
+      <span class="nav-ico">🗺️</span><span class="nav-lbl">Map</span><div class="nav-indicator"></div>
+    </button>
+    <button class="nav-btn" onclick="navTo('profile',this)" id="nb-profile">
+      <span class="nav-ico">👤</span><span class="nav-lbl">Profile</span><div class="nav-indicator"></div>
+    </button>
+  </nav>
+
+</div>
+
+<!-- Toast -->
+<div id="toast"></div>
+<!-- Loader -->
+<div id="loader"><div class="loader-ring"></div><div class="loader-txt" id="loader-txt">Processing...</div></div>
+
+<script>
+// ═══════════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════════
+const FOODS = [
+  {id:1,food_type:'Veg Biryani',quantity:80,distance_km:0.8,pickup_time:'19:00',source:'Wedding Hall',location:'Anna Nagar, Chennai',status:'available',expires_in:'2h 30m',veg:true},
+  {id:2,food_type:'Idli & Sambar',quantity:40,distance_km:1.4,pickup_time:'09:00',source:'Restaurant',location:'T. Nagar, Chennai',status:'available',expires_in:'1h 15m',veg:true},
+  {id:3,food_type:'Dal & Rice',quantity:25,distance_km:2.1,pickup_time:'13:00',source:'Office Canteen',location:'Nungambakkam',status:'available',expires_in:'3h 00m',veg:true},
+  {id:4,food_type:'Chicken Curry',quantity:60,distance_km:3.2,pickup_time:'20:30',source:'Event Hall',location:'Adyar, Chennai',status:'available',expires_in:'4h 45m',veg:false},
+  {id:5,food_type:'Pongal & Chutney',quantity:35,distance_km:1.9,pickup_time:'08:00',source:'Household',location:'Velachery',status:'claimed',expires_in:'0h 45m',veg:true},
+  {id:6,food_type:'Chapati & Sabzi',quantity:50,distance_km:2.8,pickup_time:'21:00',source:'Caterer',location:'Mylapore',status:'available',expires_in:'1h 30m',veg:true},
+];
+
+const LOCS = [
+  {id:'d1',name:'Fresh Biryani — Anna Nagar',type:'donor',color:'#4CAF7C',icon:'🍱',x:22,y:35,qty:'80 meals'},
+  {id:'d2',name:'Chapati — Mylapore',type:'donor',color:'#4CAF7C',icon:'🍱',x:72,y:60,qty:'50 meals'},
+  {id:'n1',name:'Hope Shelter',type:'ngo',color:'#1A73E8',icon:'❤️',x:50,y:45,cap:'200 capacity'},
+  {id:'n2',name:'Annai Community Kitchen',type:'community_kitchen',color:'#26A69A',icon:'🍽️',x:30,y:70,cap:'150 capacity'},
+  {id:'n3',name:'Green Meals NGO',type:'ngo',color:'#1A73E8',icon:'❤️',x:78,y:28,cap:'300 capacity'},
+  {id:'b1',name:'Chennai Biogas Plant A',type:'biogas',color:'#FF7043',icon:'⚡',x:18,y:65,cap:'500 kg/day'},
+  {id:'b2',name:'EcoEnergy Plant',type:'biogas',color:'#FF7043',icon:'⚡',x:65,y:78,cap:'800 kg/day'},
+];
+
+const MONTHLY = {
+  meals:[8200,9800,11200,14500,18900,22400,24600,15250],
+  co2:[2460,2940,3360,4350,5670,6720,7380,4575],
+  labels:['Aug','Sep','Oct','Nov','Dec','Jan','Feb','Mar']
+};
+
+const TICKERS = [
+  '🍱 80 meals rescued in Anna Nagar · 2m ago',
+  '⚡ New biogas plant registered in Adyar · 12m ago',
+  '❤️ Hope Shelter received 40 meals · 25m ago',
+  '🌍 3.2 kg CO₂ saved this hour',
+  '🍽️ Annai Kitchen collected 35 meals · 1h ago',
+];
+
+const ACTIVITIES = [
+  {title:'Veg Biryani — 80 meals',sub:'Anna Nagar · NGO Pickup',time:'2m ago'},
+  {title:'Idli & Sambar — 40 meals',sub:'T. Nagar · Community Kitchen',time:'18m ago'},
+  {title:'Dal & Rice — 25 meals',sub:'Nungambakkam · Biogas Plant',time:'1h ago'},
+  {title:'Chicken Curry — 60 meals',sub:'Adyar · NGO Pickup',time:'2h ago'},
+];
+
+// ═══════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════
+let currentScreen = 'login';
+let prevScreen = null;
+let screenStack = [];
+let foodFilter = 'all';
+let mapFilter = 'all';
+let chartMode = 'meals';
+let claimedIds = new Set();
+let userDonations = 0;
+let userMeals = 0;
+let isGuest = true;
+let tickerIdx = 0;
+let selectedLoc = null;
+
+// ═══════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════
+const NAV_SCREENS = ['home','find','donate','map','profile'];
+
+function go(id) {
+  const from = document.getElementById('s-'+currentScreen);
+  const to = document.getElementById('s-'+id);
+  if (!to) return;
+
+  if (from) from.classList.add('prev');
+  setTimeout(() => { if(from) from.classList.remove('prev','active'); }, 350);
+
+  to.classList.add('active');
+  screenStack.push(currentScreen);
+  currentScreen = id;
+
+  const nav = document.getElementById('bottom-nav');
+  if (NAV_SCREENS.includes(id)) {
+    nav.style.display = 'flex';
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('on'));
+    const nb = document.getElementById('nb-'+id);
+    if (nb) nb.classList.add('on');
+  } else {
+    nav.style.display = 'none';
+  }
+
+  onScreenEnter(id);
+}
+
+function goBack() {
+  if (screenStack.length === 0) { go('home'); return; }
+  const prev = screenStack.pop();
+  const from = document.getElementById('s-'+currentScreen);
+  const to = document.getElementById('s-'+prev);
+
+  from.style.transition = 'transform .3s cubic-bezier(.4,0,.2,1)';
+  from.style.transform = 'translateX(100%)';
+  setTimeout(() => {
+    from.classList.remove('active');
+    from.style.transform = '';
+    from.style.transition = '';
+  }, 300);
+
+  to.classList.add('active');
+  currentScreen = prev;
+
+  const nav = document.getElementById('bottom-nav');
+  if (NAV_SCREENS.includes(prev)) {
+    nav.style.display = 'flex';
+    document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+    const nb = document.getElementById('nb-'+prev);
+    if(nb) nb.classList.add('on');
+  }
+
+  onScreenEnter(prev);
+}
+
+function navTo(id, el) {
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  const from = document.getElementById('s-'+currentScreen);
+  const to = document.getElementById('s-'+id);
+  if (!to || currentScreen === id) return;
+  if(from){from.classList.remove('active');from.classList.remove('prev');}
+  to.classList.add('active');
+  screenStack = [currentScreen];
+  currentScreen = id;
+  onScreenEnter(id);
+}
+
+function onScreenEnter(id) {
+  if (id === 'home') { updateGreeting(); renderActivity(); }
+  if (id === 'find') renderFoodList();
+  if (id === 'map') { renderMapPins(); renderLocList(); }
+  if (id === 'impact') { renderChart(); animateHeroCount(); }
+  if (id === 'profile') updateProfile();
+  if (id === 'biogas') {
+    document.getElementById('bg-form-view').style.display='flex';
+    document.getElementById('bg-success-view').style.display='none';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════════════
+function doLogin() {
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-pass').value;
+  const err = document.getElementById('li-err');
+  if (!email) { err.textContent='Please enter your email'; err.style.display='block'; return; }
+  if (!pass) { err.textContent='Please enter your password'; err.style.display='block'; return; }
+  if (accounts[email]) {
+    if (accounts[email].pass !== pass) {
+      err.textContent='Incorrect password. Try again.'; err.style.display='block'; return;
+    }
+    err.style.display='none';
+    showLoader('Signing you in...');
+    setTimeout(() => {
+      hideLoader();
+      isGuest = false;
+      const acc = accounts[email];
+      document.getElementById('profile-name').textContent = acc.name;
+      document.getElementById('profile-avatar').textContent = acc.name[0].toUpperCase();
+      go('home');
+      document.getElementById('bottom-nav').style.display='flex';
+      toast('Welcome back, ' + acc.name + '! 🌿');
+    }, 1200);
+    return;
+  }
+  err.style.display='none';
+  showLoader('Signing you in...');
+  setTimeout(() => {
+    hideLoader();
+    isGuest = false;
+    document.getElementById('profile-name').textContent = email.split('@')[0];
+    document.getElementById('profile-avatar').textContent = email[0].toUpperCase();
+    go('home');
+    document.getElementById('bottom-nav').style.display='flex';
+    toast('Welcome back! 🌿');
+  }, 1200);
+}
+
+function goGuest() {
+  isGuest = true;
+  go('home');
+  document.getElementById('bottom-nav').style.display='flex';
+  toast('Continuing as guest 👋');
+}
+
+function logout() {
+  if (!confirm('Sign out of PAGIR?')) return;
+  document.querySelectorAll('.scr').forEach(s=>{s.classList.remove('active','prev');});
+  screenStack=[];
+  currentScreen='login';
+  document.getElementById('s-login').classList.add('active');
+  document.getElementById('bottom-nav').style.display='none';
+  toast('Signed out successfully');
+}
+
+function togglePass() {
+  const inp = document.getElementById('li-pass');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+// ─── SIGNUP ───────────────────────────────────
+let termsAccepted = false;
+let accounts = {};
+
+function selChipGroup(el, groupId) {
+  document.getElementById(groupId).querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function toggleTerms() {
+  termsAccepted = !termsAccepted;
+  const box = document.getElementById('terms-check');
+  box.style.background = termsAccepted ? 'var(--pl)' : '';
+  box.style.borderColor = termsAccepted ? 'var(--pl)' : 'var(--bor)';
+  box.innerHTML = termsAccepted ? '<span style="color:#fff;font-size:13px;font-weight:800;">✓</span>' : '';
+}
+
+function checkPassStrength() {
+  const pass = document.getElementById('su-pass').value;
+  const bar = document.getElementById('pass-strength');
+  if (!pass) { bar.style.display='none'; return; }
+  bar.style.display='block';
+  let score = 0;
+  if (pass.length >= 8) score++;
+  if (/[A-Z]/.test(pass)) score++;
+  if (/[0-9]/.test(pass)) score++;
+  if (/[^A-Za-z0-9]/.test(pass)) score++;
+  const colors = ['','#E74C3C','#F39C12','#3498db','#27AE60'];
+  const labels = ['','Weak','Fair','Good','Strong'];
+  for (let i=1;i<=4;i++) {
+    document.getElementById('ps'+i).style.background = i<=score ? colors[score] : 'var(--bor)';
+  }
+  const lbl = document.getElementById('ps-label');
+  lbl.textContent = labels[score];
+  lbl.style.color = colors[score];
+}
+
+function toggleSignupPass() {
+  const inp = document.getElementById('su-pass');
+  inp.type = inp.type === 'password' ? 'text' : 'password';
+}
+
+function showForgot() {
+  toast('📧 Password reset link sent to your email!');
+}
+
+function doSignup() {
+  const name = document.getElementById('su-name').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const city = document.getElementById('su-city').value.trim();
+  const pass = document.getElementById('su-pass').value;
+  const pass2 = document.getElementById('su-pass2').value;
+  const role = document.querySelector('#role-chips .chip.on')?.textContent?.trim() || 'Donor';
+
+  ['suname','suemail','sucity','supass','supass2','terms'].forEach(id => {
+    const el = document.getElementById('e-'+id);
+    if (el) el.textContent = '';
+  });
+
+  let ok = true;
+  if (!name) { document.getElementById('e-suname').textContent='Please enter your name'; ok=false; }
+  if (!email || !email.includes('@')) { document.getElementById('e-suemail').textContent='Please enter a valid email'; ok=false; }
+  else if (accounts[email]) { document.getElementById('e-suemail').textContent='An account with this email already exists'; ok=false; }
+  if (!city) { document.getElementById('e-sucity').textContent='Please enter your city'; ok=false; }
+  if (pass.length < 6) { document.getElementById('e-supass').textContent='Password must be at least 6 characters'; ok=false; }
+  if (pass !== pass2) { document.getElementById('e-supass2').textContent='Passwords do not match'; ok=false; }
+  if (!termsAccepted) { document.getElementById('e-terms').textContent='Please accept the Terms of Service to continue'; ok=false; }
+  if (!ok) return;
+
+  showLoader('Creating your account...');
+  setTimeout(() => {
+    hideLoader();
+    accounts[email] = { name, email, city, role, pass };
+    isGuest = false;
+    document.getElementById('profile-name').textContent = name;
+    document.getElementById('profile-avatar').textContent = name[0].toUpperCase();
+    document.getElementById('signup-welcome-msg').textContent =
+      'Welcome, ' + name + '! Your account is ready. Let\'s start rescuing food together! 🌍';
+    go('signup-success');
+    document.getElementById('bottom-nav').style.display = 'none';
+    toast('🎉 Account created successfully!');
+  }, 1600);
+}
+
+function finishSignup() {
+  go('home');
+  document.getElementById('bottom-nav').style.display='flex';
+  toast('🌿 Welcome to PAGIR! Let\'s rescue some food!');
+}
+
+
+
+// ═══════════════════════════════════════════════
+// HOME
+// ═══════════════════════════════════════════════
+function updateGreeting() {
+  const h = new Date().getHours();
+  const g = h<12?'Good Morning ☀️':h<17?'Good Afternoon 🌤️':'Good Evening 🌙';
+  document.getElementById('greet-txt').textContent = g;
+}
+
+function renderActivity() {
+  document.getElementById('activity-feed').innerHTML = ACTIVITIES.map(a=>`
+    <div class="act-item fade-up">
+      <div class="act-dot"></div>
+      <div class="act-content"><div class="act-title">${a.title}</div><div class="act-sub">${a.sub}</div></div>
+      <span class="act-time">${a.time}</span>
+    </div>`).join('');
+}
+
+function startTicker() {
+  const el = document.getElementById('ticker-txt');
+  setInterval(() => {
+    el.style.opacity='0';
+    setTimeout(() => { el.textContent=TICKERS[tickerIdx%TICKERS.length]; tickerIdx++; el.style.opacity='1'; }, 300);
+  }, 3500);
+  el.textContent = TICKERS[0]; tickerIdx=1;
+}
+
+// ═══════════════════════════════════════════════
+// DONATE
+// ═══════════════════════════════════════════════
+function selChip(el, group) {
+  el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+}
+
+function setFoodType(el, val) {
+  document.getElementById('d-type').value = val;
+  el.closest('.chips').querySelectorAll('.chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');
+  updatePreview();
+}
+
+function updatePreview() {
+  const ft = document.getElementById('d-type').value;
+  const qty = document.getElementById('d-qty').value;
+  const loc = document.getElementById('d-loc').value;
+  const box = document.getElementById('don-preview');
+  if (ft && qty) {
+    box.style.display='block';
+    document.getElementById('prev-txt').textContent=`${qty} meals of ${ft}${loc?' from '+loc:''}`;
+    document.getElementById('prev-co2').textContent=`🌱 Est. CO₂ saved: ${(parseFloat(qty)*0.3).toFixed(1)} kg`;
+  } else box.style.display='none';
+}
+
+function submitDonation() {
+  const ft = document.getElementById('d-type').value.trim();
+  const qty = parseInt(document.getElementById('d-qty').value);
+  const loc = document.getElementById('d-loc').value.trim();
+  const time = document.getElementById('d-time').value;
+  const src = document.querySelector('#src-chips .chip.on')?.textContent?.trim() || 'Home';
+
+  if (!ft) { toast('⚠️ Please enter food type'); return; }
+  if (!qty || qty<1) { toast('⚠️ Please enter valid quantity'); return; }
+  if (!loc) { toast('⚠️ Please enter pickup location'); return; }
+
+  const btn = document.getElementById('donate-btn');
+  btn.textContent = '⏳ Routing with AI...';
+  btn.disabled = true;
+  showLoader('AI is routing your donation...');
+
+  // Simulate n8n webhook call
+  const payload = {food_type:ft,quantity:qty,location:loc,time_cooked:time,source:src};
+  console.log('[PAGIR] POST /webhook/food-report', payload);
+
+  setTimeout(() => {
+    hideLoader();
+    btn.textContent='🚀 Report Food Donation';
+    btn.disabled=false;
+    userDonations++;
+    userMeals += qty;
+    showResponse(ft, qty, loc, src);
+  }, 2000);
+}
+
+function showResponse(ft, qty, loc, src) {
+  const isLarge = qty >= 50;
+  const id = 'RPT_'+Math.random().toString(36).substr(2,8).toUpperCase();
+  const dist = (Math.random()*2.5+0.4).toFixed(1);
+  const eta = Math.floor(Math.random()*20+10);
+  const co2 = (qty*0.3).toFixed(1);
+  const energy = (qty*0.3*0.5).toFixed(1);
+
+  document.getElementById('r-id').textContent='Report #'+id;
+  document.getElementById('r-meals').textContent=qty;
+  document.getElementById('r-ftype').textContent=ft;
+  document.getElementById('r-rec').textContent=isLarge?'NGO Pickup':'Community Kitchen';
+  document.getElementById('r-rec').style.color=isLarge?'var(--ngo)':'var(--pl)';
+  document.getElementById('r-rico').textContent=isLarge?'❤️':'🍽️';
+  document.getElementById('r-reason').textContent=isLarge
+    ?'"Large quantity — best suited for organized NGO distribution"'
+    :'"Small batch — best handled by nearby community kitchen"';
+  document.getElementById('r-nlbl').textContent=isLarge?'❤️ Nearest NGO':'🍽️ Nearest Kitchen';
+  document.getElementById('r-nname').textContent=isLarge?'Hope Shelter':'Annai Community Kitchen';
+  document.getElementById('r-dist').textContent=dist+' km';
+  document.getElementById('r-eta').textContent=eta+' min';
+  document.getElementById('r-phone').textContent='+91 98765 43210';
+  document.getElementById('r-co2').textContent=co2+' kg';
+  document.getElementById('r-mresc').textContent=qty;
+  document.getElementById('r-energy').textContent=energy+' kWh';
+
+  ACTIVITIES.unshift({title:`${ft} — ${qty} meals`,sub:`${loc} · ${isLarge?'NGO Pickup':'Community Kitchen'}`,time:'Just now'});
+  if(ACTIVITIES.length>6) ACTIVITIES.pop();
+
+  go('response');
+  toast('✅ Donation reported successfully!');
+}
+
+// ═══════════════════════════════════════════════
+// FIND FOOD
+// ═══════════════════════════════════════════════
+function renderFoodList() {
+  const search = document.getElementById('food-search')?.value?.toLowerCase()||'';
+  let items = [...FOODS];
+  if (foodFilter==='available') items=items.filter(f=>f.status==='available'&&!claimedIds.has(f.id));
+  if (foodFilter==='nearby') items=items.filter(f=>f.distance_km<=2);
+  if (foodFilter==='veg') items=items.filter(f=>f.veg);
+  if (search) items=items.filter(f=>f.food_type.toLowerCase().includes(search)||f.location.toLowerCase().includes(search));
+
+  const avail = items.filter(f=>f.status==='available'&&!claimedIds.has(f.id)).length;
+  document.getElementById('find-count').textContent=`${avail} donation${avail!==1?'s':''} available near you`;
+
+  document.getElementById('food-list').innerHTML = items.length?items.map((f,i)=>{
+    const claimed=claimedIds.has(f.id)||f.status==='claimed';
+    return `<div class="food-card ${claimed?'is-claimed':''} fade-up" style="animation-delay:${i*.07}s">
+      <div class="fc-top">
+        <div class="fc-left">
+          <div class="fc-type">${f.food_type}${f.veg?' 🥦':' 🍗'}</div>
+          <div class="fc-src">${f.source} · ${f.location}</div>
+          <span class="stag ${claimed?'clmd':'avail'}"><span class="stag-dot"></span><span class="stag-txt">${claimed?'Claimed':'Available'}</span></span>
+        </div>
+        <div class="fc-right"><div class="fc-qty">${f.quantity}</div><div class="fc-qlbl">meals</div></div>
+      </div>
+      <div class="fc-mets">
+        <div class="fc-met"><span class="fc-mi">📍</span><span class="fc-mt">${f.distance_km} km</span></div>
+        <div class="fc-met"><span class="fc-mi">🕐</span><span class="fc-mt">${f.pickup_time}</span></div>
+        <div class="fc-met"><span class="fc-mi">⏰</span><span class="fc-mt warn">Exp ${f.expires_in}</span></div>
+      </div>
+      <button class="btn-claim ${claimed?'off':''}" onclick="claimFood(${f.id})" ${claimed?'disabled':''}>
+        ${claimed?'✓ Claimed':'→ Claim Food'}
+      </button>
+    </div>`;
+  }).join(''):'<div style="text-align:center;padding:40px;color:var(--tm);">🍽️ No food found matching your filter</div>';
+}
+
+function claimFood(id) {
+  if (claimedIds.has(id)) return;
+  const food = FOODS.find(f=>f.id===id);
+  if (!food) return;
+  showLoader('Claiming food...');
+  setTimeout(() => {
+    hideLoader();
+    claimedIds.add(id);
+    renderFoodList();
+    toast(`✅ Claimed ${food.quantity} meals of ${food.food_type}!`);
+  }, 800);
+}
+
+function setFoodFilter(f, el) {
+  foodFilter=f;
+  document.querySelectorAll('#food-pills .pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderFoodList();
+}
+
+function filterFoods() { renderFoodList(); }
+
+// ═══════════════════════════════════════════════
+// MAP
+// ═══════════════════════════════════════════════
+function renderMapPins() {
+  const canvas = document.getElementById('map-pins');
+  let filtered = LOCS;
+  if (mapFilter!=='all') filtered=LOCS.filter(l=>l.type===mapFilter||(mapFilter==='ngo'&&l.type==='community_kitchen'));
+
+  canvas.innerHTML = filtered.map(l=>`
+    <div class="map-pin" style="left:${l.x}%;top:${l.y}%;" onclick="showLocDetail('${l.id}')">
+      <div class="pin-pulse" style="background:${l.color};top:0;left:0;"></div>
+      <div class="pin-body" style="background:${l.color};"><span class="pin-ico">${l.icon}</span></div>
+    </div>`).join('');
+}
+
+function showLocDetail(id) {
+  const loc = LOCS.find(l=>l.id===id);
+  if (!loc) return;
+  selectedLoc = id;
+  document.getElementById('panel-content').innerHTML=`
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <span style="font-size:30px;">${loc.icon}</span>
+      <div>
+        <div class="panel-name">${loc.name}</div>
+        <span style="font-size:11px;background:rgba(0,0,0,.06);border-radius:var(--rfull);padding:3px 9px;font-weight:700;color:var(--ts);">${loc.type.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</span>
+      </div>
+    </div>
+    <div class="panel-mets">
+      ${loc.qty?`<div class="panel-met"><div class="pm-val">${loc.qty}</div><div class="pm-lbl">Available</div></div>`:''}
+      ${loc.cap?`<div class="panel-met"><div class="pm-val">${loc.cap}</div><div class="pm-lbl">Capacity</div></div>`:''}
+    </div>
+    <button class="btn btn-green btn-full btn-sm" onclick="toast('Directions feature coming soon! 🗺️')">
+      ${loc.type==='donor'?'→ Claim This Food':'→ Get Directions'}
+    </button>`;
+  document.getElementById('map-panel').classList.add('open');
+}
+
+function renderLocList() {
+  let filtered = LOCS;
+  if (mapFilter!=='all') filtered=LOCS.filter(l=>l.type===mapFilter||(mapFilter==='ngo'&&l.type==='community_kitchen'));
+  document.getElementById('loc-list').innerHTML=filtered.map(l=>`
+    <div class="loc-item ${selectedLoc===l.id?'sel':''}" onclick="showLocDetail('${l.id}')">
+      <div class="loc-dot" style="background:${l.color}"></div>
+      <div class="loc-info"><div class="loc-name">${l.name}</div><div class="loc-type">${l.type.replace('_',' ').replace(/\b\w/g,c=>c.toUpperCase())}</div></div>
+      ${l.qty?`<span class="loc-qty">${l.qty}</span>`:''}
+    </div>`).join('');
+  // close panel on filter change
+  document.getElementById('map-panel').classList.remove('open');
+}
+
+function setMapFilter(f, el) {
+  mapFilter=f;
+  document.querySelectorAll('#map-pills .pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  renderMapPins();
+  renderLocList();
+}
+
+// Close map panel on canvas click
+document.addEventListener('click', e=>{
+  const panel=document.getElementById('map-panel');
+  if (panel.classList.contains('open')&&!panel.contains(e.target)&&!e.target.closest('.map-pin')) {
+    panel.classList.remove('open');
+    selectedLoc=null;
+  }
+});
+
+// ═══════════════════════════════════════════════
+// IMPACT
+// ═══════════════════════════════════════════════
+function renderChart() {
+  const data=MONTHLY[chartMode];
+  const max=Math.max(...data);
+  const area=document.getElementById('chart-area');
+  area.innerHTML=data.map((v,i)=>`
+    <div class="bar-grp">
+      <div class="bar ${i===data.length-1?'last':''}" style="height:0;" data-h="${Math.max(3,(v/max)*106)}"></div>
+      <div style="font-size:9px;color:var(--tm);margin-top:3px;text-align:center;">${MONTHLY.labels[i]}</div>
+    </div>`).join('');
+  setTimeout(()=>{
+    area.querySelectorAll('.bar').forEach((b,i)=>{
+      setTimeout(()=>{ b.style.height=b.dataset.h+'px'; },i*60);
+    });
+  },50);
+}
+
+function switchChart(mode, el) {
+  chartMode=mode;
+  document.querySelectorAll('.tog-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  renderChart();
+}
+
+function animateHeroCount() {
+  const target=124850;
+  const el=document.getElementById('hero-count');
+  let v=0; const step=target/70;
+  const t=setInterval(()=>{ v=Math.min(v+step,target); el.textContent=Math.round(v).toLocaleString(); if(v>=target)clearInterval(t); },16);
+}
+
+// ═══════════════════════════════════════════════
+// BIOGAS
+// ═══════════════════════════════════════════════
+function updateEnergyHint() {
+  const cap=parseInt(document.getElementById('bg-cap').value);
+  const hint=document.getElementById('energy-hint');
+  if(cap>0){ hint.style.display='block'; hint.textContent=`⚡ Energy potential: ~${(cap*0.5).toFixed(0)} kWh/day`; }
+  else hint.style.display='none';
+}
+
+function toggleWaste(el) { el.classList.toggle('on-purple'); }
+
+function submitBiogas() {
+  const name=document.getElementById('bg-name').value.trim();
+  const loc=document.getElementById('bg-loc').value.trim();
+  const cap=parseInt(document.getElementById('bg-cap').value);
+  const contact=document.getElementById('bg-contact').value.trim();
+
+  let ok=true;
+  if(!name){document.getElementById('e-bgname').textContent='Plant name is required';ok=false;}else document.getElementById('e-bgname').textContent='';
+  if(!loc){document.getElementById('e-bgloc').textContent='Location is required';ok=false;}else document.getElementById('e-bgloc').textContent='';
+  if(!cap||cap<1){document.getElementById('e-bgcap').textContent='Enter valid capacity';ok=false;}else document.getElementById('e-bgcap').textContent='';
+  if(!contact){document.getElementById('e-bgcontact').textContent='Contact number required';ok=false;}else document.getElementById('e-bgcontact').textContent='';
+  if(!ok) return;
+
+  showLoader('Registering your plant...');
+  const payload={plant_name:name,location:loc,capacity_kg_day:cap,contact,energy_potential_kwh:(cap*0.5).toFixed(1)};
+  console.log('[PAGIR] POST /webhook/register-biogas', payload);
+
+  setTimeout(()=>{
+    hideLoader();
+    document.getElementById('bg-form-view').style.display='none';
+    document.getElementById('bg-success-view').style.display='flex';
+    document.getElementById('bg-success-msg').textContent=`${name} has been successfully registered in the PAGIR network.`;
+    document.getElementById('bg-energy-num').textContent=`${(cap*0.5).toFixed(0)} kWh/day`;
+    document.getElementById('bg-energy-sub').textContent=`from ${cap} kg/day waste capacity`;
+    toast('⚡ Plant registered successfully!');
+    LOCS.push({id:'new'+Date.now(),name,type:'biogas',color:'#FF7043',icon:'⚡',x:Math.random()*60+15,y:Math.random()*60+15,cap:`${cap} kg/day`});
+  }, 2000);
+}
+
+// ═══════════════════════════════════════════════
+// PROFILE
+// ═══════════════════════════════════════════════
+function updateProfile() {
+  document.getElementById('ps-donations').textContent=userDonations;
+  document.getElementById('ps-meals').textContent=userMeals>999?Math.round(userMeals/1000)+'K':userMeals;
+  document.getElementById('ps-co2').textContent=(userMeals*0.3).toFixed(0)+'kg';
+}
+
+function toggleSetting(el) { el.classList.toggle('on'); toast(el.classList.contains('on')?'Setting enabled ✓':'Setting disabled'); }
+
+// ═══════════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════════
+function toast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+function showLoader(msg='Processing...') {
+  document.getElementById('loader-txt').textContent=msg;
+  document.getElementById('loader').classList.add('show');
+}
+function hideLoader() { document.getElementById('loader').classList.remove('show'); }
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+updateGreeting();
+startTicker();
+
+// Live meal counter pulse
+setInterval(()=>{
+  const el=document.getElementById('h-meals');
+  if(el){ let n=parseInt(el.textContent)||124000; el.textContent=(n+Math.floor(Math.random()*3)).toLocaleString(); }
+},4000);
+</script>
+</body>
+</html>
