@@ -1,4 +1,4 @@
-# PAGIR 
+# PAGIR-FEED LIVES
 
 **AI-Powered Food Waste Reduction & Redistribution**
 
