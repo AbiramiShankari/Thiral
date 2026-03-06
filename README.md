@@ -1,4 +1,4 @@
-# PAGIR Mobile
+# PAGIR 
 
 **AI-Powered Food Waste Reduction & Redistribution**
 
